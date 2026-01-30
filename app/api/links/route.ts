@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { LinkRepository } from '@/lib/db';
 import { Branch } from '@/lib/types';
 
+// 👇 ДОБАВИТЬ ЭТУ СТРОКУ
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
+    // ... ваш старый код ...
     const { searchParams } = new URL(request.url);
     const branch = searchParams.get('branch');
 
