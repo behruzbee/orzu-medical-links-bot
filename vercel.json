@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "app/api/bot/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/links/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
