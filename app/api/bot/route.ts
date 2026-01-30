@@ -1,16 +1,20 @@
-import { webhookCallback } from "grammy";
 import { bot } from "@/lib/bot";
+import { webhookCallback } from "grammy";
 
 export const dynamic = 'force-dynamic';
 
+// Эта функция обрабатывает POST запросы от Telegram
 export const POST = async (req: Request) => {
-    console.log("📨 (Webhook) Получен запрос от Telegram"); // <--- ЛОГ 1
+    console.log("📨 POST запрос пришел!"); 
     
     try {
-        // Запускаем обработчик grammY
-        return await webhookCallback(bot, "std/http")(req);
+        // Создаем обработчик для Vercel/Next.js
+        const handleUpdate = webhookCallback(bot, "std/http");
+        
+        // Передаем запрос в grammY
+        return await handleUpdate(req);
     } catch (e) {
-        console.error("❌ (Webhook) Ошибка обработки:", e);
+        console.error("❌ Ошибка в route.ts:", e);
         return new Response("Error", { status: 500 });
     }
 };
