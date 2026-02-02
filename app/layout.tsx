@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
+import Script from "next/script"; // 👈 1. ИМПОРТ
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
+        {/* 👇 2. ВОТ ЭТОТ СКРИПТ ОБЯЗАТЕЛЕН */}
         <Script 
           src="https://telegram.org/js/telegram-web-app.js" 
           strategy="beforeInteractive" 

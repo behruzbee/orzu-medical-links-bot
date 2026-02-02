@@ -36,22 +36,29 @@ export default function AdminPage() {
 
   // ⚡️ АВТОМАТИЧЕСКАЯ ПРОВЕРКА АДМИНА
   useEffect(() => {
-    // 1. Проверяем, открыто ли это внутри Telegram
+    console.log("🚀 Запуск проверки Telegram...");
+
+    // Проверяем, загрузился ли объект Telegram
     if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+      console.log("✅ Telegram WebApp найден!");
+      
       const tg = window.Telegram.WebApp;
-      tg.ready(); // Сообщаем Телеграму, что приложение готово
-      tg.expand(); // Разворачиваем на весь экран
+      tg.ready();
+      tg.expand();
 
       const user = tg.initDataUnsafe?.user;
+      
+      console.log("👤 Данные пользователя:", user); // Посмотрим в консоли браузера
 
       if (user) {
         setUserInfo({ id: user.id, name: user.first_name });
         verifyAdmin(user.id);
       } else {
-        // Если открыли просто в браузере или нет данных
+        console.warn("⚠️ Пользователь не найден (возможно открыто в браузере)");
         setCheckingAuth(false);
       }
     } else {
+      console.error("❌ window.Telegram не найден (проверьте layout.tsx)");
       setCheckingAuth(false);
     }
   }, []);
