@@ -12,33 +12,36 @@ bot.use(session({
 }));
 
 bot.catch((err) => {
-    const ctx = err.ctx;
-    console.error(`🔥 Ошибка update ${ctx.update.update_id}:`, err.error);
+    console.error(`🔥 Ошибка:`, err.error);
 });
 
 // Команда /start
 bot.command("start", async (ctx) => {
-    // 👇 Сюда вставь свой актуальный домен на Vercel
+    // 👇 ВАШ ДОМЕН (Убедитесь, что ссылка точная)
     const domain = "https://links-bot-tau.vercel.app"; 
     
     await ctx.reply(
         `👋 **База знаний Orzu Medical**\n\n` +
-        `Теперь бот работает как приложение! 📱\n` +
-        `Нажмите кнопку ниже, чтобы открыть базу или добавить документы.`, 
+        `Для входа в Админку нажмите кнопку **под этим сообщением**.\n` +
+        `Только так Телеграм передаст ваш ID.`, 
         {
             parse_mode: "Markdown",
             reply_markup: {
-                keyboard: [
-                    [ { text: "📂 Открыть базу знаний", web_app: { url: domain } } ],
-                    [ { text: "⚙️ Админка (Добавить)", web_app: { url: `${domain}/admin` } } ]
-                ],
-                resize_keyboard: true
+                // 👇 ИСПОЛЬЗУЕМ INLINE КЛАВИАТУРУ (Кнопки прозрачные под текстом)
+                // Это гарантирует передачу initData
+                inline_keyboard: [
+                    [
+                        { text: "📂 Открыть базу", web_app: { url: domain } }
+                    ],
+                    [
+                        { text: "⚙️ Админка (Вход)", web_app: { url: `${domain}/admin` } }
+                    ]
+                ]
             }
         }
     );
 });
 
-// Команда /ping
 bot.command("ping", async (ctx) => {
-    await ctx.reply("Pong! 🏓 Бот работает в режиме Mini App.");
+    await ctx.reply("Pong! 🏓");
 });
