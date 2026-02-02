@@ -6,20 +6,19 @@ if (!uri) throw new Error("Нет MONGODB_URI в переменных окруж
 
 const options: MongoClientOptions = {
     serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 10000,
     family: 4,
     maxPoolSize: 1,
 };
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+let client: MongoClient | null = null;
+let clientPromise: Promise<MongoClient> | null = null;
 
 declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-// 👇 ФУНКЦИЯ ПОДКЛЮЧЕНИЯ (Обертка)
-// Мы НЕ создаем client = new MongoClient() здесь, на верхнем уровне.
-// Мы делаем это только внутри функции.
+// 🔌 Ленивая функция подключения
 async function getDbConnection() {
     if (clientPromise) return clientPromise;
 
@@ -35,15 +34,13 @@ async function getDbConnection() {
         client = new MongoClient(uri!, options);
         clientPromise = client.connect();
     }
-    return clientPromise;
+    return clientPromise!;
 }
 
-// Все функции теперь вызывают getDbConnection()
 export const LinkRepository = {
     async add(link: LinkItem) {
-        const connection = await getDbConnection(); // 👈 Ленивое подключение
-        const db = connection.db("orzu_bot");
-        await db.collection<LinkItem>("links").insertOne({ ...link, clicks: 0 });
+        const connection = await getDbConnection();
+        await connection.db("orzu_bot").collection<LinkItem>("links").insertOne({ ...link, clicks: 0 });
     },
     async delete(id: string) {
         const connection = await getDbConnection();

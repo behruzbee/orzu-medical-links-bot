@@ -4,16 +4,16 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'orzumed.uz',
+        hostname: 'orzumed.uz', // 👈 Разрешаем загрузку картинок с этого сайта
         port: '',
-        pathname: '/wp-content/uploads/**',
+        pathname: '/wp-content/uploads/**', // Разрешаем папку uploads
       },
     ],
-    // Разрешаем SVG (иногда требуется для безопасности)
+    // Разрешаем SVG (так как логотип в формате .svg)
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

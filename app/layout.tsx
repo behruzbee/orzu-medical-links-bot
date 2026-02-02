@@ -1,16 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Script from "next/script"; // 👈 Импортируем компонент скрипта
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Orzu Medical Base",
-  description: "База знаний клиники",
+  description: "База знаний",
 };
 
-// 📱 Настройка для мобильных устройств (чтобы не зумилось при нажатии)
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -26,7 +25,6 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
-        {/* 👇 ЭТО САМОЕ ГЛАВНОЕ: Подключаем Telegram SDK */}
         <Script 
           src="https://telegram.org/js/telegram-web-app.js" 
           strategy="beforeInteractive" 

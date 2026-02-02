@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { LinkRepository } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
     try {
         const { id } = await request.json();
@@ -9,6 +11,6 @@ export async function POST(request: Request) {
         }
         return NextResponse.json({ success: true });
     } catch (e) {
-        return NextResponse.json({ error: 'Error tracking' }, { status: 500 });
+        return NextResponse.json({ error: 'Tracking Error' }, { status: 500 });
     }
 }
