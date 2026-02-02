@@ -1,14 +1,15 @@
-import { MongoClient, MongoClientOptions } from "mongodb"; // Добавьте MongoClientOptions
+import { MongoClient, MongoClientOptions } from "mongodb";
 import { LinkItem, Branch } from "@/lib/types";
 
 const uri = process.env.MONGODB_URI;
 if (!uri) throw new Error("Нет MONGODB_URI в переменных окружения");
 
-// 👇 Настройки, чтобы не ждать 60 секунд, а падать сразу с ошибкой
+// 👇 ЖЕСТКИЕ НАСТРОЙКИ (Чтобы не висело 300 секунд)
 const options: MongoClientOptions = {
-    serverSelectionTimeoutMS: 5000, // Тайм-аут подключения 5 секунд
-    socketTimeoutMS: 10000,         // Тайм-аут сокета 10 секунд
-    connectTimeoutMS: 10000,        // Тайм-аут соединения
+    serverSelectionTimeoutMS: 5000, // Тайм-аут 5 секунд (а не 300)
+    socketTimeoutMS: 10000,         
+    family: 4,                      // 👈 Принудительно используем IPv4 (важно для Vercel!)
+    maxPoolSize: 1,                 // Для бота достаточно 1 подключения
 };
 
 let client: MongoClient;
@@ -18,31 +19,31 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-console.log("⏳ (DB) Начало подключения...");
+console.log("⏳ (DB) Инициализация клиента (v2)..."); // Я изменил текст, чтобы мы увидели обновление в логах
 
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options); // 👈 Добавили options
+    client = new MongoClient(uri, options);
     global._mongoClientPromise = client.connect();
   }
   clientPromise = global._mongoClientPromise;
 } else {
-  client = new MongoClient(uri, options); // 👈 Добавили options
+  client = new MongoClient(uri, options);
   clientPromise = client.connect();
 }
 
 async function getCollection() {
     try {
-        console.log("⏳ (DB) Жду соединения...");
+        console.log("⏳ (DB) Подключение к коллекции...");
         const connection = await clientPromise;
-        console.log("✅ (DB) Успешно подключено!");
+        console.log("✅ (DB) Успех!");
         return connection.db("orzu_bot").collection<LinkItem>("links");
-    } catch (e) {
-        console.error("❌ (DB) ОШИБКА ПОДКЛЮЧЕНИЯ:", e);
-        throw new Error("Database connection failed");
+    } catch (e: any) {
+        console.error("❌ (DB) ОШИБКА:", e.message); // Покажет точную причину
+        throw e;
     }
 }
-// ... остальной код LinkRepository без изменений
+
 export const LinkRepository = {
     async add(link: LinkItem) {
         const links = await getCollection();
