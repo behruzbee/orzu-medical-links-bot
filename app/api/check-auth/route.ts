@@ -4,24 +4,36 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {
-        const { userId } = await request.json();
+        const body = await request.json();
+        // Приводим ID к строке, чтобы сравнение было надежным
+        const userId = String(body.userId || "").trim();
 
-        // 1. Получаем список админов из .env
-        // Превращаем строку "123, 456" в массив чисел [123, 456]
+        // 1. Получаем список из ENV
         const adminIdsString = process.env.ADMIN_IDS || "";
-        const adminIds = adminIdsString.split(",").map(id => parseInt(id.trim()));
+        
+        // 2. Создаем массив строк (чистим пробелы)
+        const adminIds = adminIdsString
+            .split(",")
+            .map(id => id.trim()); // Убираем пробелы вокруг ID в переменной
 
-        console.log(`🔍 Проверка ID: ${userId}. Разрешенные: ${adminIds.join(", ")}`);
+        // 3. ЛОГИРОВАНИЕ (Смотрите Vercel Logs)
+        console.log("------------------------------------------------");
+        console.log(`📥 Пришел UserID: '${userId}'`);
+        console.log(`📋 Список AdminID:`, adminIds);
+        
+        const match = adminIds.includes(userId);
+        console.log(`🔐 Результат проверки: ${match ? "ДОСТУП РАЗРЕШЕН" : "ОТКАЗ"}`);
+        console.log("------------------------------------------------");
 
-        // 2. Проверяем
-        if (adminIds.includes(Number(userId))) {
+        // 4. Проверка
+        if (match) {
             return NextResponse.json({ isAdmin: true });
         } else {
             return NextResponse.json({ isAdmin: false }, { status: 403 });
         }
 
-    } catch (e) {
+    } catch (e: any) {
         console.error("Auth Error:", e);
-        return NextResponse.json({ error: 'Server Error' }, { status: 500 });
+        return NextResponse.json({ error: e.message }, { status: 500 });
     }
 }
