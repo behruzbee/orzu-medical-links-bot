@@ -4,43 +4,50 @@ import { LinkItem, Branch } from "@/lib/types";
 const uri = process.env.MONGODB_URI;
 if (!uri) throw new Error("Нет MONGODB_URI в переменных окружения");
 
-// 👇 ЖЕСТКИЕ НАСТРОЙКИ (Чтобы не висело 300 секунд)
 const options: MongoClientOptions = {
-    serverSelectionTimeoutMS: 5000, // Тайм-аут 5 секунд (а не 300)
-    socketTimeoutMS: 10000,         
-    family: 4,                      // 👈 Принудительно используем IPv4 (важно для Vercel!)
-    maxPoolSize: 1,                 // Для бота достаточно 1 подключения
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 10000,
+    family: 4,
+    maxPoolSize: 1,
 };
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+// Переменные для хранения клиента
+let client: MongoClient | null = null;
+let clientPromise: Promise<MongoClient> | null = null;
 
 declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-console.log("⏳ (DB) Инициализация клиента (v2)..."); // Я изменил текст, чтобы мы увидели обновление в логах
+// 👇 ФУНКЦИЯ ПОДКЛЮЧЕНИЯ (Вместо кода на верхнем уровне)
+async function getDbClient() {
+    // Если уже подключено - возвращаем готовое
+    if (clientPromise) return clientPromise;
 
-if (process.env.NODE_ENV === "development") {
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise;
-} else {
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+    console.log("⏳ (DB) Создаю новое подключение...");
+    
+    if (process.env.NODE_ENV === "development") {
+        if (!global._mongoClientPromise) {
+            client = new MongoClient(uri!, options);
+            global._mongoClientPromise = client.connect();
+        }
+        clientPromise = global._mongoClientPromise;
+    } else {
+        client = new MongoClient(uri!, options);
+        clientPromise = client.connect();
+    }
+    
+    return clientPromise!;
 }
 
 async function getCollection() {
     try {
-        console.log("⏳ (DB) Подключение к коллекции...");
-        const connection = await clientPromise;
-        console.log("✅ (DB) Успех!");
+        // Подключаемся только ЗДЕСЬ, когда нужна коллекция
+        const connection = await getDbClient();
         return connection.db("orzu_bot").collection<LinkItem>("links");
     } catch (e: any) {
-        console.error("❌ (DB) ОШИБКА:", e.message); // Покажет точную причину
-        throw e;
+        console.error("❌ (DB) ОШИБКА ПОДКЛЮЧЕНИЯ:", e.message);
+        throw new Error("Database connection failed");
     }
 }
 
