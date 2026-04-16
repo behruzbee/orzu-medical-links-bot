@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image"; 
 import { Branch, BranchNames, LinkItem } from "@/lib/types";
-import { Folder, ArrowLeft, ExternalLink, Loader2, Search } from "lucide-react";
+import { Folder, ArrowLeft, ExternalLink, Loader2, Search, Pin } from "lucide-react";
 
 export default function Home() {
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
@@ -158,7 +158,7 @@ export default function Home() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 text-blue-600 gap-3">
                 <Loader2 className="animate-spin" size={32} />
-                <span className="text-sm text-gray-500 font-medium">Загружаем документы...</span>
+                <span className="text-sm text-gray-500 font-medium">Загружаем документов...</span>
               </div>
             ) : filteredLinks.length === 0 ? (
               <div className="text-center py-16 px-6 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200">
@@ -174,7 +174,9 @@ export default function Home() {
                   <div
                     key={link.id}
                     onClick={() => handleLinkClick(link)}
-                    className="group bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all relative overflow-hidden active:scale-[0.99]"
+                    className={`group bg-white p-4 rounded-xl shadow-sm border cursor-pointer hover:shadow-lg hover:shadow-blue-500/10 transition-all relative overflow-hidden active:scale-[0.99] ${
+                        link.isPinned ? 'border-amber-300 bg-amber-50/20' : 'border-gray-100 hover:border-blue-300'
+                    }`}
                   >
                     <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
@@ -185,8 +187,12 @@ export default function Home() {
                                 </span>
                             )}
                             
-                            <h3 className="font-semibold text-[15px] text-gray-800 group-hover:text-blue-600 transition-colors leading-snug">
-                                {link.title}
+                            <h3 className="font-semibold text-[15px] text-gray-800 group-hover:text-blue-600 transition-colors leading-snug flex items-start gap-1.5">
+                                {/* Иконка закрепления */}
+                                {link.isPinned && (
+                                    <Pin size={16} className="text-amber-500 fill-amber-500 shrink-0 mt-0.5" />
+                                )}
+                                <span>{link.title}</span>
                             </h3>
                             
                             <div className="flex items-center flex-wrap gap-2 mt-2.5 text-xs text-gray-400">

@@ -29,6 +29,7 @@ export interface LinkItem {
     adminName: string;
     createdAt: string;
     clicks: number;
+    isPinned?: boolean; 
 }
 
 export interface SessionData {

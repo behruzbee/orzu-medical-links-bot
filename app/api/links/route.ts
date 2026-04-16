@@ -41,3 +41,20 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'DB Save Error' }, { status: 500 });
     }
 }
+
+export async function PUT(req: Request) {
+    try {
+        const body = await req.json();
+        const { id, ...updateData } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: "ID обязателен" }, { status: 400 });
+        }
+
+        await LinkRepository.update(id, updateData);
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("PUT Error:", error);
+        return NextResponse.json({ error: "Ошибка при обновлении" }, { status: 500 });
+    }
+}

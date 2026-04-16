@@ -50,12 +50,6 @@ export const LinkRepository = {
         const connection = await getDbConnection();
         return connection.db("orzu_bot").collection<LinkItem>("links").find({ adminId: adminId }).toArray();
     },
-    async getLinksForUser(branch: Branch) {
-        const connection = await getDbConnection();
-        return connection.db("orzu_bot").collection<LinkItem>("links").find({
-            $or: [{ branch: branch }, { branch: Branch.ALL }]
-        }).sort({ branch: 1, createdAt: -1 }).toArray();
-    },
     async getById(id: string) {
         const connection = await getDbConnection();
         return connection.db("orzu_bot").collection<LinkItem>("links").findOne({ id: id });
@@ -67,5 +61,19 @@ export const LinkRepository = {
     async getTopLinks(limit: number = 5) {
         const connection = await getDbConnection();
         return connection.db("orzu_bot").collection<LinkItem>("links").find().sort({ clicks: -1 }).limit(limit).toArray();
+    },
+    async getLinksForUser(branch: Branch) {
+        const connection = await getDbConnection();
+        return connection.db("orzu_bot").collection<LinkItem>("links").find({
+            $or: [{ branch: branch }, { branch: Branch.ALL }]
+        })
+        .sort({ isPinned: -1, createdAt: -1 }).toArray(); 
+    },
+    async update(id: string, updateData: Partial<LinkItem>) {
+        const connection = await getDbConnection();
+        await connection.db("orzu_bot").collection<LinkItem>("links").updateOne(
+            { id: id },
+            { $set: updateData }
+        );
     }
 };
